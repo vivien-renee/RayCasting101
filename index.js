@@ -9,6 +9,23 @@ document.body.appendChild(start)
 
 const canvas = document.createElement('canvas')
 const ctx = canvas.getContext('2d')
+//shape constructor 
+function shape (x, y, w, h, color){
+	this.x = x
+	this.y = y
+	this.w = w
+	this.h = h
+	this.color = color
+}
+//drawShape function
+
+let rec = new shape(50, 50, 25, 25, 'purple')
+
+function drawShape (){
+	ctx.clearRect(0, 0, canvas.width, canvas.height)
+	ctx.fillStyle = rec.color
+	ctx.fillRect  (rec.x, rec.y, rec. w, rec.h)
+}
 
 const level = {
 	worldArray: [], 
@@ -79,18 +96,51 @@ function gamestart() {
 			}
 		})
 	})
-	// ctx.fillRect(31, 7, 82, 77)
-	// ctx.strokeStyle = 'cyan'
-	// ctx.save()
-	// ctx.strokeRect(31, 7, 82, 77)
-	// ctx.fillStyle = 'red'
-	// ctx.translate(80, 7)
-	// ctx.save()
-	// ctx.fillRect(0, 0, 82, 77)
-	// ctx.strokeStyle = 'green'
-	// ctx.restore()
-	// ctx.restore()
-	// ctx.strokeRect(80, 7, 82, 77)
-
+	drawShape()
+	
+	
 }
+
+//arrow keys make movement
+document.addEventListener('keydown', makeMove)
+//keyCodes
+//left 37
+//up 38
+//right 39
+//down 40
+//w	87
+//a	65
+//s	83
+//d	68
+
+function makeMove(input){
+	console.log(input)
+	
+	
+	switch(input.keyCode){
+	//left and A
+	case 37: rec.x -= 1 
+	//case 65: rec.x -= 1 
+		break
+	//up and W
+	case 38: rec.y -= 1
+	//case 87: rec.y -= 1
+		break
+	//right and D
+	case 39: rec.x += 1
+	//case 68: rec.x += 1
+		break
+
+	//down and S
+	case 40: rec.y += 1
+	//case 83: rec.y += 1
+		break
+
+	}
+	input.preventDefault()
+	drawShape()
+}
+
+
+
 
