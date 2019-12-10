@@ -14,4 +14,22 @@ function gamestart() {
 	title.remove()
 	start.remove()
 	document.body.appendChild(canvas)
+
+	canvas.width = window.innerWidth
+	canvas.height = window.innerHeight
+
+	ctx.fillRect(31, 7, 82, 77)
+	ctx.strokeStyle = 'cyan'
+	ctx.save()
+	ctx.strokeRect(31, 7, 82, 77)
+	ctx.fillStyle = 'red'
+	ctx.translate(80, 7)
+	ctx.save()
+	ctx.fillRect(0, 0, 82, 77)
+	ctx.strokeStyle = 'green'
+	ctx.restore()
+	ctx.restore()
+	ctx.strokeRect(80, 7, 82, 77)
+
 }
+
