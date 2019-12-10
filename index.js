@@ -22,7 +22,6 @@ function shape (x, y, w, h, color){
 let rec = new shape(50, 50, 25, 25, 'purple')
 
 function drawShape (){
-	ctx.clearRect(0, 0, canvas.width, canvas.height)
 	ctx.fillStyle = rec.color
 	ctx.fillRect  (rec.x, rec.y, rec. w, rec.h)
 }
@@ -65,40 +64,26 @@ function gamestart() {
 		}
 		level.worldArray.push(row)
 	}
+	drawLevel()
+	drawShape()
+}
+function drawLevel() {	
 	ctx.strokeStyle = 'cyan'
 	ctx.fillStyle = 'red'
-	// ctx.save()
 	//draw
 	level.worldArray.forEach((row, y) => {
 		row.forEach((point, x) => {
 			if (point) {
-				// if(x === 0 && (y === 1 || y >= 8)){
-				// 	ctx.fillRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
-				// 	ctx.strokeRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
-				// }
-				// else if(x >= 15 && (y === 1 || y === 2)){
-				// 	ctx.fillRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
-				// 	ctx.strokeRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
-				// }
-				// else if(y === 9 && (x >= 6 && x <= 8) || (x >= 14 && x <= 16)){
-				// 	ctx.fillRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
-				// 	ctx.strokeRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
-				// }
-				// if(y > 0 && y < 9 && (x === 0 || x === 19)){ //Sides a different color
-				// 	ctx.fillStyle = 'blue'
-				// }
-				// else	ctx.fillStyle = 'red'
 				ctx.fillRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
 				ctx.strokeRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
 			}
 			else {
-				ctx.strokeRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
+				//ctx.strokeRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
 			}
 		})
 	})
-	drawShape()
-	
-	
+
+		
 }
 
 //arrow keys make movement
@@ -114,30 +99,29 @@ document.addEventListener('keydown', makeMove)
 //d	68
 
 function makeMove(input){
-	console.log(input)
-	
-	
 	switch(input.keyCode){
 	//left and A
-	case 37: rec.x -= 1 
+	case 37: rec.x -= 5 
 	//case 65: rec.x -= 1 
 		break
 	//up and W
-	case 38: rec.y -= 1
+	case 38: rec.y -= 5
 	//case 87: rec.y -= 1
 		break
 	//right and D
-	case 39: rec.x += 1
+	case 39: rec.x += 5
 	//case 68: rec.x += 1
 		break
 
 	//down and S
-	case 40: rec.y += 1
+	case 40: rec.y += 5
 	//case 83: rec.y += 1
 		break
 
 	}
 	input.preventDefault()
+	ctx.clearRect(0, 0, canvas.width, canvas.height)
+	drawLevel()
 	drawShape()
 }
 
