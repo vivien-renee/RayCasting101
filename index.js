@@ -25,12 +25,21 @@ function gamestart() {
 	ctx.translate(15, 15)
 	ctx.save()
 
-	for(let i = 0; i < 10; i++){
+	for(let y = 0; y < 10; y++){
 		let row = []
-		for (let j = 0; j < 20; j++) {
-			if(i === 0 || i === 9){
+		for (let x = 0; x < 20; x++) {
+			if(y === 0 || y === 9){
 				row.push(true)
-			} else if(j === 0 || j === 19){
+			} else if(x === 0 || x === 19){
+				row.push(true)
+			}
+			else if(x === 1 && (y === 1 || y >= 8)){
+				row.push(true)
+			}
+			else if((x >= 14 && x <= 16) && (y === 1 || y === 2)){
+				row.push(true)
+			}
+			else if(y === 8 && (x >= 6 && x <= 8) || y === 8 && (x >= 14 && x <= 16)){
 				row.push(true)
 			}
 			else{
@@ -46,14 +55,26 @@ function gamestart() {
 	level.worldArray.forEach((row, y) => {
 		row.forEach((point, x) => {
 			if (point) {
-				if(y > 0 && y < 9 && (x === 0 || x === 19)){
-					ctx.fillStyle = 'blue'
-				}
-				else	ctx.fillStyle = 'red'
+				// if(x === 0 && (y === 1 || y >= 8)){
+				// 	ctx.fillRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
+				// 	ctx.strokeRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
+				// }
+				// else if(x >= 15 && (y === 1 || y === 2)){
+				// 	ctx.fillRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
+				// 	ctx.strokeRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
+				// }
+				// else if(y === 9 && (x >= 6 && x <= 8) || (x >= 14 && x <= 16)){
+				// 	ctx.fillRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
+				// 	ctx.strokeRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
+				// }
+				// if(y > 0 && y < 9 && (x === 0 || x === 19)){ //Sides a different color
+				// 	ctx.fillStyle = 'blue'
+				// }
+				// else	ctx.fillStyle = 'red'
 				ctx.fillRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
 				ctx.strokeRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
 			}
-			else{
+			else {
 				ctx.strokeRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
 			}
 		})
