@@ -4,7 +4,7 @@ document.body.appendChild(title)
 
 const start = document.createElement('button')
 start.innerText = 'Start!'
-start.onclick = gamestart
+start.onclick = gameStart
 document.body.appendChild(start)
 
 const canvas = document.createElement('canvas')
@@ -28,11 +28,11 @@ function drawShape (){
 
 const level = {
 	worldArray: [], 
-	cell: {x: (window.innerWidth - 50)/20, y: (window.innerHeight - 50)/10},
+	unitCell: {x: (window.innerWidth - 50)/20, y: (window.innerHeight - 50)/10},
 
 }
 
-function gamestart() {
+function gameStart() {
 	title.remove()
 	start.remove()
 	document.body.appendChild(canvas)
@@ -44,22 +44,40 @@ function gamestart() {
 	for(let y = 0; y < 10; y++){
 		let row = []
 		for (let x = 0; x < 20; x++) {
+			let cell = { //reference to the cell being rendered
+				topLeft: { 
+					x: x*level.unitCell.x, 
+					y: y*level.unitCell.y
+				}, 
+				topRight: {
+					x: (x*level.unitCell.x) + level.unitCell.x,
+					y: y*level.unitCell.y
+				}, 
+				bottomLeft: {
+					x: x*level.unitCell.x,
+					y: (y*level.unitCell.y) + level.unitCell.y
+				}, 
+				bottomRight: {
+					x: (x*level.unitCell.x) + level.unitCell.x,
+					y: (y*level.unitCell.y) + level.unitCell.y
+				}
+			}
 			if(y === 0 || y === 9){
-				row.push(true)
+				row.push(cell)
 			} else if(x === 0 || x === 19){
-				row.push(true)
+				row.push(cell)
 			}
 			else if(x === 1 && (y === 1 || y >= 8)){
-				row.push(true)
+				row.push(cell)
 			}
 			else if((x >= 14 && x <= 16) && (y === 1 || y === 2)){
-				row.push(true)
+				row.push(cell)
 			}
 			else if(y === 8 && (x >= 6 && x <= 8) || y === 8 && (x >= 14 && x <= 16)){
-				row.push(true)
+				row.push(cell)
 			}
 			else{
-				row.push(false)
+				row.push(null)
 			}
 		}
 		level.worldArray.push(row)
@@ -71,14 +89,11 @@ function drawLevel() {
 	ctx.strokeStyle = 'cyan'
 	ctx.fillStyle = 'red'
 	//draw
-	level.worldArray.forEach((row, y) => {
-		row.forEach((point, x) => {
-			if (point) {
-				ctx.fillRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
-				ctx.strokeRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
-			}
-			else {
-				//ctx.strokeRect(x*level.cell.x, y*level.cell.y, level.cell.x, level.cell.y)
+	level.worldArray.forEach((row) => {
+		row.forEach((cell) => {
+			if (cell) {
+				ctx.fillRect(cell.topLeft.x, cell.topLeft.y, level.unitCell.x, level.unitCell.y)
+				ctx.strokeRect(cell.topLeft.x, cell.topLeft.y, level.unitCell.x, level.unitCell.y)
 			}
 		})
 	})
@@ -120,7 +135,7 @@ function makeMove(input){
 
 	}
 	input.preventDefault()
-	ctx.clearRect(0, 0, canvas.width, canvas.height)
+	ctx.clearRect(-15, -15, canvas.width, canvas.height)
 	drawLevel()
 	drawShape()
 }
