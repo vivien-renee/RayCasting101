@@ -24,6 +24,7 @@ let player = new shape(50, 50, 25, 25, 'purple')
 function drawShape (){
 	ctx.fillStyle = player.color
 	ctx.fillRect  (player.x, player.y, player. w, player.h)
+
 }
 
 const level = {
@@ -116,21 +117,21 @@ document.addEventListener('keydown', makeMove)
 function makeMove(input){
 	switch(input.keyCode){
 	//left and A
-	case 37: player.x -= 1 
-	//case 65: rec.x -= 1 
+	case 37: 
+	case 65: player.x -= 1 
 		break
 	//up and W
-	case 38: player.y -= 1
-	//case 87: rec.y -= 1
+	case 38:
+	case 87: player.y -= 1
 		break
 	//right and D
-	case 39: player.x += 1
-	//case 68: rec.x += 1
+	case 39: 
+	case 68: player.x += 1
 		break
 
 	//down and S
-	case 40: player.y += 1
-	//case 83: rec.y += 1
+	case 40: 
+	case 83: player.y += 1
 		break
 
 	}
