@@ -102,7 +102,6 @@ document.addEventListener('keydown', makeMove)
 function makeMove(input){
 	switch(input.keyCode){
 	//left and A
-<<<<<<< HEAD
 	case 37: 
 	case 65: rec.x -= 1 
 		break
@@ -118,23 +117,6 @@ function makeMove(input){
 	//down and S
 	case 40: 
 	case 83: rec.y += 1
-=======
-	case 37: rec.x -= 5 
-	//case 65: rec.x -= 1 
-		break
-	//up and W
-	case 38: rec.y -= 5
-	//case 87: rec.y -= 1
-		break
-	//right and D
-	case 39: rec.x += 5
-	//case 68: rec.x += 1
-		break
-
-	//down and S
-	case 40: rec.y += 5
-	//case 83: rec.y += 1
->>>>>>> master
 		break
 
 	}
