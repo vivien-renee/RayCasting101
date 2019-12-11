@@ -10,20 +10,39 @@ document.body.appendChild(start)
 const canvas = document.createElement('canvas')
 const ctx = canvas.getContext('2d')
 //shape constructor 
-function shape (x, y, w, h, color){
+function character (x, y, w, h, color){
 	this.x = x
 	this.y = y
 	this.w = w
 	this.h = h
 	this.color = color
+	this.generateCorners = function() {
+		return {
+			topLeft: { 
+				x: this.x, 
+				y: this.y
+			}, 
+			topRight: {
+				x: this.x+this.w,
+				y: this.y
+			}, 
+			bottomLeft: {
+				x: this.x,
+				y: (this.y+this.h)
+			}, 
+			bottomRight: {
+				x: (this.x+this.w),
+				y: (this.y+this.h)
+			}}
+	}
 }
 //drawShape function
 
-let rec = new shape(50, 50, 25, 25, 'purple')
+let player = new character(500, 500, 25, 25, 'purple')
 
-function drawShape (){
-	ctx.fillStyle = rec.color
-	ctx.fillRect  (rec.x, rec.y, rec. w, rec.h)
+function drawCharacter (){
+	ctx.fillStyle = player.color
+	ctx.fillRect  (player.x, player.y, player. w, player.h)
 
 }
 
@@ -84,7 +103,7 @@ function gameStart() {
 		level.worldArray.push(row)
 	}
 	drawLevel()
-	drawShape()
+	drawCharacter()
 }
 function drawLevel() {	
 	ctx.strokeStyle = 'cyan'
@@ -115,32 +134,89 @@ document.addEventListener('keydown', makeMove)
 //d	68
 
 function makeMove(input){
+	let cellY
+	let cellX
+	let cellY2
+	let cellX2
+	let cell
+	let cell2
+	const speed = 15
+	const corners = player.generateCorners()
 	switch(input.keyCode){
 	//left and A
 	case 37: 
-	case 65: rec.x -= 1 
+	case 65: 
+		cellY = Math.floor(corners.topLeft.y/level.unitCell.y)
+		cellX = Math.floor((corners.topLeft.x - speed)/level.unitCell.x)
+		cellY2 = Math.floor(corners.bottomLeft.y/level.unitCell.y)
+		cellX2 = Math.floor((corners.bottomLeft.x - speed)/level.unitCell.x)
+		cell = level.worldArray[cellY][cellX]
+		cell2 = level.worldArray[cellY2][cellX2]
+		if(!cell && !cell2) {
+			player.x -= speed
+		}
+		else{
+			cell ? player.x = cell.topRight.x + 1 : player.x = cell2.topRight.x + 1
+		}
 		break
 	//up and W
 	case 38:
-	case 87: rec.y -= 1
+	case 87: 
+		cellY = Math.floor((corners.topLeft.y - speed)/level.unitCell.y)
+		cellX = Math.floor((corners.topLeft.x)/level.unitCell.x)
+		cellY2 = Math.floor((corners.topRight.y - speed)/level.unitCell.y)
+		cellX2 = Math.floor((corners.topRight.x)/level.unitCell.x)
+		cell = level.worldArray[cellY][cellX]
+		cell2 = level.worldArray[cellY2][cellX2]
+		if(!cell && !cell2) {
+			player.y -= speed
+		}
+		else{
+			cell ? player.y = cell.bottomRight.y + 1 : player.y = cell2.bottomRight.y + 1
+		}
+
 		break
 	//right and D
 	case 39: 
-	case 68: rec.x += 1
+	case 68: 
+		cellY = Math.floor(corners.topRight.y/level.unitCell.y)
+		cellX = Math.floor((corners.topRight.x + speed)/level.unitCell.x)
+		cellY2 = Math.floor(corners.bottomRight.y/level.unitCell.y)
+		cellX2 = Math.floor((corners.bottomRight.x + speed)/level.unitCell.x)
+		cell = level.worldArray[cellY][cellX]
+		cell2 = level.worldArray[cellY2][cellX2]
+		if(!cell && !cell2) {
+			player.x += speed
+		}
+		else{
+			cell ? player.x = cell.topLeft.x - (player.w + 1) : player.x = cell2.topLeft.x - (player.w + 1)
+		}
 		break
 
 	//down and S
 	case 40: 
-	case 83: rec.y += 1
+	case 83: 
+		cellY = Math.floor((corners.bottomLeft.y + speed)/level.unitCell.y) 
+		cellX = Math.floor((corners.bottomLeft.x)/level.unitCell.x)
+		cellY2 = Math.floor((corners.bottomRight.y + speed)/level.unitCell.y)
+		cellX2 = Math.floor((corners.bottomRight.x)/level.unitCell.x)
+		cell = level.worldArray[cellY][cellX]
+		cell2 = level.worldArray[cellY2][cellX2]
+		if(!cell && !cell2) {
+			player.y += speed
+		}
+		else{
+			console.log(cell.topRight.y, player.y + player.h)
+			cell ? player.y = cell.topRight.y - (player.h + 1): player.y = cell2.topRight.y - (player.h + 1)
+		}
 		break
 
 	}
 	input.preventDefault()
 	ctx.clearRect(-15, -15, canvas.width, canvas.height)
 	drawLevel()
-	drawShape()
+	drawCharacter()
 }
-
 
 
 
