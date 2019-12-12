@@ -16,6 +16,10 @@ function character (x, y, w, h, color){
 	this.w = w
 	this.h = h
 	this.color = color
+	this.generateCenter = function () {
+		return	{x: (player.x + player.w / 2), y: (player.y + player.h / 2)}
+	}	
+
 	this.generateCorners = function() {
 		return {
 			topLeft: { 
@@ -43,7 +47,12 @@ let player = new character(500, 500, 25, 25, 'purple')
 function drawCharacter (){
 	ctx.fillStyle = player.color
 	ctx.fillRect  (player.x, player.y, player. w, player.h)
-
+	let center = player.generateCenter()
+	let slope = {rise: 1, run: 1}
+	for (let index = 0; index <= 50; index++) {
+		slope.rise -= .04
+		Ray(center, slope)
+	}
 }
 
 const level = {
@@ -206,7 +215,6 @@ function makeMove(input){
 			player.y += speed
 		}
 		else{
-			console.log(cell.topRight.y, player.y + player.h)
 			cell ? player.y = cell.topRight.y - (player.h + 1): player.y = cell2.topRight.y - (player.h + 1)
 		}
 		break
@@ -218,5 +226,20 @@ function makeMove(input){
 	drawCharacter()
 }
 
-
-
+function Ray(temp, slope) {
+	let point = {x: temp.x + slope.run, y: temp.y + slope.rise}
+	let cellY = Math.floor((point.y)/level.unitCell.y) 
+	let cellX = Math.floor((point.x)/level.unitCell.x)	
+	let cell = level.worldArray[cellY][cellX]
+	ctx.beginPath()
+	ctx.moveTo(temp.x, temp.y)
+	ctx.lineTo(point.x, point.y)
+	ctx.strokeStyle = 'yellow'
+	ctx.lineWidth = 2
+	ctx.stroke()
+	if(!cell){
+		Ray(point, slope) 
+		return
+	}
+	else return point
+}
