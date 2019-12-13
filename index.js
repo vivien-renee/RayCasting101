@@ -51,24 +51,25 @@ const level = {
 let player = new character(level.unitCell.x * 2 , level.unitCell.y * 2, 25, 25, 'purple')
 //draw rays func
 function drawCharacter (){
+
+
+
 	ctx.save()
 	ctx.fillStyle = player.color
 	ctx.fillRect  (player.x, player.y, player. w, player.h)
 	let center = player.generateCenter()
 	let temp = player.angle
 	let slope = {rise: 0, run: 1}
-	for (let index = 0; index <= 50; index++) {
-		let s = Math.tan((Math.atan2(player.y - center.y, player.x - center.x)) - temp)
-		//slope.rise = s > 1 ?  s :  1 
-		slope.rise = s
-		//slope.run = s < 1 ? s : -1
-		console.log(s)
-		temp = (temp +  (3 * Math.PI) / 360)
+	for (let index = 0; index <= 90; index++) {	
+		let x = center.x + 1 * Math.cos(temp)
+		let y = center.y + 1 * Math.sin(temp)
+		slope.rise = x - center.x
+		slope.run = y - center.y
 		let point = Ray(center, slope)
 		ctx.beginPath()
 		ctx.moveTo(center.x, center.y)
 		ctx.lineTo(point.x, point.y)
-		
+		temp+= .015
 		ctx.strokeStyle = 'yellow'
 		ctx.lineWidth = 5
 		ctx.stroke()
@@ -173,10 +174,10 @@ function makeMove(input){
 	const corners = player.generateCorners()
 	switch(input.keyCode){
 	//left turn e
-	case 69: player.angle = mod(player.angle -((2 * Math.PI) / 360), 2 * Math.PI)
+	case 69: player.angle = mod(player.angle - .2, 360)
 		break
 	//right turn q
-	case 81: player.angle = mod(player.angle +((2 * Math.PI) / 360), 2 * Math.PI)
+	case 81: player.angle = mod(player.angle + .2, 360)
 		break
 	//left and A
 	case 37: 
