@@ -9,13 +9,14 @@ document.body.appendChild(start)
 
 const canvas = document.createElement('canvas')
 const ctx = canvas.getContext('2d')
-//shape constructor 
+//character constructor 
 function character (x, y, w, h, color){
 	this.x = x
 	this.y = y
 	this.w = w
 	this.h = h
 	this.color = color
+	this.angle = 0
 	this.generateCenter = function () {
 		return	{x: (player.x + player.w / 2), y: (player.y + player.h / 2)}
 	}	
@@ -40,7 +41,7 @@ function character (x, y, w, h, color){
 			}}
 	}
 }
-//drawShape function
+
 const level = {
 	worldArray: [], 
 	unitCell: {x: (window.innerWidth - 50)/20, y: (window.innerHeight - 50)/10},
@@ -48,19 +49,26 @@ const level = {
 }
 
 let player = new character(level.unitCell.x * 2 , level.unitCell.y * 2, 25, 25, 'purple')
-
+//draw rays func
 function drawCharacter (){
 	ctx.save()
 	ctx.fillStyle = player.color
 	ctx.fillRect  (player.x, player.y, player. w, player.h)
 	let center = player.generateCenter()
-	let slope = {rise: 1, run: 1}
+	let temp = player.angle
+	let slope = {rise: 0, run: 1}
 	for (let index = 0; index <= 50; index++) {
-		slope.rise -= .04
-		let pointy = Ray(center, slope)
+		let s = Math.tan((Math.atan2(player.y - center.y, player.x - center.x)) - temp)
+		//slope.rise = s > 1 ?  s :  1 
+		slope.rise = s
+		//slope.run = s < 1 ? s : -1
+		console.log(s)
+		temp = (temp +  (3 * Math.PI) / 360)
+		let point = Ray(center, slope)
 		ctx.beginPath()
 		ctx.moveTo(center.x, center.y)
-		ctx.lineTo(pointy.x, pointy.y)
+		ctx.lineTo(point.x, point.y)
+		
 		ctx.strokeStyle = 'yellow'
 		ctx.lineWidth = 5
 		ctx.stroke()
@@ -150,6 +158,9 @@ document.addEventListener('keydown', makeMove)
 //a	65
 //s	83
 //d	68
+//q 81
+//e 69
+
 
 function makeMove(input){
 	let cellY
@@ -161,6 +172,12 @@ function makeMove(input){
 	const speed = 15
 	const corners = player.generateCorners()
 	switch(input.keyCode){
+	//left turn e
+	case 69: player.angle = mod(player.angle -((2 * Math.PI) / 360), 2 * Math.PI)
+		break
+	//right turn q
+	case 81: player.angle = mod(player.angle +((2 * Math.PI) / 360), 2 * Math.PI)
+		break
 	//left and A
 	case 37: 
 	case 65: 
@@ -237,7 +254,6 @@ function makeMove(input){
 
 function Ray(temp, slope) {
 	let point = {x: temp.x + slope.run, y: temp.y + slope.rise}
-	
 	let cellY = Math.floor((point.y)/level.unitCell.y) 
 	let cellX = Math.floor((point.x)/level.unitCell.x)	
 	let cell = level.worldArray[cellY][cellX]
@@ -245,4 +261,8 @@ function Ray(temp, slope) {
 		return Ray(point, slope) 
 	}
 	else return point
+}
+
+function mod(n, m){
+	return((n % m)+ m)% m
 }
