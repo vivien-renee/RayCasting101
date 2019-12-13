@@ -41,25 +41,34 @@ function character (x, y, w, h, color){
 	}
 }
 //drawShape function
+const level = {
+	worldArray: [], 
+	unitCell: {x: (window.innerWidth - 50)/20, y: (window.innerHeight - 50)/10},
 
-let player = new character(500, 500, 25, 25, 'purple')
+}
+
+let player = new character(level.unitCell.x * 2 , level.unitCell.y * 2, 25, 25, 'purple')
 
 function drawCharacter (){
+	ctx.save()
 	ctx.fillStyle = player.color
 	ctx.fillRect  (player.x, player.y, player. w, player.h)
 	let center = player.generateCenter()
 	let slope = {rise: 1, run: 1}
 	for (let index = 0; index <= 50; index++) {
 		slope.rise -= .04
-		Ray(center, slope)
+		let pointy = Ray(center, slope)
+		ctx.beginPath()
+		ctx.moveTo(center.x, center.y)
+		ctx.lineTo(pointy.x, pointy.y)
+		ctx.strokeStyle = 'yellow'
+		ctx.lineWidth = 5
+		ctx.stroke()
 	}
+	ctx.restore()
 }
 
-const level = {
-	worldArray: [], 
-	unitCell: {x: (window.innerWidth - 50)/20, y: (window.innerHeight - 50)/10},
 
-}
 
 function gameStart() {
 	title.remove()
@@ -228,18 +237,12 @@ function makeMove(input){
 
 function Ray(temp, slope) {
 	let point = {x: temp.x + slope.run, y: temp.y + slope.rise}
+	
 	let cellY = Math.floor((point.y)/level.unitCell.y) 
 	let cellX = Math.floor((point.x)/level.unitCell.x)	
 	let cell = level.worldArray[cellY][cellX]
-	ctx.beginPath()
-	ctx.moveTo(temp.x, temp.y)
-	ctx.lineTo(point.x, point.y)
-	ctx.strokeStyle = 'yellow'
-	ctx.lineWidth = 2
-	ctx.stroke()
 	if(!cell){
-		Ray(point, slope) 
-		return
+		return Ray(point, slope) 
 	}
 	else return point
 }
