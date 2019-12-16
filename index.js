@@ -9,6 +9,7 @@ document.body.appendChild(start)
 
 const canvas = document.createElement('canvas')
 const ctx = canvas.getContext('2d')
+let xAxis = []
 //character constructor 
 function character (x, y, w, h, color){
 	this.x = x
@@ -50,33 +51,53 @@ const level = {
 
 let player = new character(level.unitCell.x * 2 , level.unitCell.y * 2, 25, 25, 'purple')
 //draw rays func
-function drawCharacter (){
-
-
+let drawPlayer = false
+let drawRays = false
+function castRays (){
 
 	ctx.save()
-	ctx.fillStyle = player.color
-	ctx.fillRect  (player.x, player.y, player. w, player.h)
+	if(drawPlayer){
+		ctx.fillStyle = player.color
+		ctx.fillRect (player.x, player.y, player. w, player.h)
+	}
 	let center = player.generateCenter()
 	let temp = player.angle
 	let slope = {rise: 0, run: 1}
+	xAxis = []
 	for (let index = 0; index <= 90; index++) {	
 		let x = center.x + 1 * Math.cos(temp)
 		let y = center.y + 1 * Math.sin(temp)
-		slope.rise = x - center.x
-		slope.run = y - center.y
+		slope.run = x - center.x
+		slope.rise = y - center.y
 		let point = Ray(center, slope)
-		ctx.beginPath()
-		ctx.moveTo(center.x, center.y)
-		ctx.lineTo(point.x, point.y)
+		let sliver = {distance: Math.sqrt(Math.pow(point.y - center.y, 2) + Math.pow(point.x - center.x, 2)), coordinate: point, color: 'darkblue'}
+		xAxis.push(sliver)
 		temp += .015
-		ctx.strokeStyle = 'yellow'
-		ctx.lineWidth = 5
-		ctx.stroke()
+		if(drawRays){
+			ctx.beginPath()
+			ctx.moveTo(center.x, center.y)
+			ctx.lineTo(point.x, point.y)
+			ctx.strokeStyle = 'yellow'
+			ctx.lineWidth = 5
+			ctx.stroke()
+		}
 	}
 	ctx.restore()
 }
 
+
+function drawFirstPerson() {
+	let maxHeight = window.innerHeight - 50
+	let maxDistance = window.innerWidth - 50
+	for (let index = 0; index < xAxis.length; index++) {
+		const sliver = xAxis[index]
+		let drawHeight = (maxDistance / sliver.distance) * 10 
+		ctx.save()
+		ctx.fillStyle = sliver.color
+		ctx.fillRect((maxDistance / 90) * index, (maxHeight / 2)- (drawHeight / 2), 25, drawHeight)
+		ctx.restore()
+	}
+}
 
 
 function gameStart() {
@@ -129,8 +150,8 @@ function gameStart() {
 		}
 		level.worldArray.push(row)
 	}
-	drawLevel()
-	drawCharacter()
+	// drawTopDown()
+	castRays()
 }
 function drawLevel() {	
 	ctx.strokeStyle = 'cyan'
@@ -144,10 +165,14 @@ function drawLevel() {
 			}
 		})
 	})
-
-		
 }
 
+function drawTopDown() {
+	drawLevel()
+	drawPlayer = true
+	drawRays = true
+	castRays()
+}
 //arrow keys make movement
 document.addEventListener('keydown', makeMove)
 //keyCodes
@@ -171,14 +196,14 @@ function makeMove(input){
 	let cell
 	let cell2
 	const speed = 15
-	const rotationSpeed = .02
+	const rotationSpeed = .1
 	const corners = player.generateCorners()
 	switch(input.keyCode){
 	//left turn e
-	case 69: player.angle = +mod(player.angle - rotationSpeed, Math.PI * 2).toFixed(7)
+	case 69: player.angle = +mod(player.angle + rotationSpeed, Math.PI * 2).toFixed(7)
 		break
 	//right turn q
-	case 81: player.angle = +mod(player.angle + rotationSpeed, Math.PI * 2).toFixed(7)
+	case 81: player.angle = +mod(player.angle - rotationSpeed, Math.PI * 2).toFixed(7)
 		break
 	//left and A
 	case 37: 
@@ -250,8 +275,9 @@ function makeMove(input){
 	}
 	input.preventDefault()
 	ctx.clearRect(-15, -15, canvas.width, canvas.height)
-	drawLevel()
-	drawCharacter()
+	// drawTopDown()
+	castRays()
+	drawFirstPerson()
 }
 
 function Ray(temp, slope) {
