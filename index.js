@@ -89,11 +89,18 @@ function castRays (){
 function drawFirstPerson() {
 	let maxHeight = window.innerHeight - 50
 	let maxDistance = window.innerWidth - 50
+	ctx.save()
+	ctx.fillStyle = 'purple'
+	ctx.fillRect(0, 0, maxDistance, maxHeight / 2)
+	ctx.fillStyle = 'darkred'
+	ctx.fillRect(0, maxHeight / 2, maxDistance, maxHeight)
+	ctx.restore()
+
 	for (let index = 0; index < xAxis.length; index++) {
 		const sliver = xAxis[index]
 		let drawHeight = (maxDistance / sliver.distance) * 10 
 		ctx.save()
-		ctx.fillStyle = sliver.color
+		ctx.fillStyle = `rgb(0,0,${(255 * drawHeight) / maxHeight})`
 		ctx.fillRect((maxDistance / 90) * index, (maxHeight / 2)- (drawHeight / 2), 25, drawHeight)
 		ctx.restore()
 	}
