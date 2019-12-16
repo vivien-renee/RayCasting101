@@ -69,7 +69,7 @@ function drawCharacter (){
 		ctx.beginPath()
 		ctx.moveTo(center.x, center.y)
 		ctx.lineTo(point.x, point.y)
-		temp+= .015
+		temp += .015
 		ctx.strokeStyle = 'yellow'
 		ctx.lineWidth = 5
 		ctx.stroke()
@@ -134,7 +134,7 @@ function gameStart() {
 }
 function drawLevel() {	
 	ctx.strokeStyle = 'cyan'
-	ctx.fillStyle = 'red'
+	ctx.fillStyle = 'darkred'
 	//draw
 	level.worldArray.forEach((row) => {
 		row.forEach((cell) => {
@@ -171,13 +171,14 @@ function makeMove(input){
 	let cell
 	let cell2
 	const speed = 15
+	const rotationSpeed = .02
 	const corners = player.generateCorners()
 	switch(input.keyCode){
 	//left turn e
-	case 69: player.angle = mod(player.angle - .2, 360)
+	case 69: player.angle = +mod(player.angle - rotationSpeed, Math.PI * 2).toFixed(7)
 		break
 	//right turn q
-	case 81: player.angle = mod(player.angle + .2, 360)
+	case 81: player.angle = +mod(player.angle + rotationSpeed, Math.PI * 2).toFixed(7)
 		break
 	//left and A
 	case 37: 
