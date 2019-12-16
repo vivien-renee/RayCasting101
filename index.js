@@ -67,8 +67,8 @@ function castRays (){
 	for (let index = 0; index <= 90; index++) {	
 		let x = center.x + 1 * Math.cos(temp)
 		let y = center.y + 1 * Math.sin(temp)
-		slope.run = x - center.x
-		slope.rise = y - center.y
+		slope.run = center.x - x
+		slope.rise = center.y - y
 		let point = Ray(center, slope)
 		let sliver = {distance: Math.sqrt(Math.pow(point.y - center.y, 2) + Math.pow(point.x - center.x, 2)), coordinate: point, color: 'darkblue'}
 		xAxis.push(sliver)
@@ -205,6 +205,11 @@ function makeMove(input){
 	const speed = 15
 	const rotationSpeed = .1
 	const corners = player.generateCorners()
+	let x
+	let y
+	let vx
+	let vy
+	let center = player.generateCenter()
 	switch(input.keyCode){
 	//left turn e
 	case 69: player.angle = +mod(player.angle + rotationSpeed, Math.PI * 2).toFixed(7)
@@ -231,17 +236,24 @@ function makeMove(input){
 	//up and W
 	case 38:
 	case 87: 
-		cellY = Math.floor((corners.topLeft.y - speed)/level.unitCell.y)
-		cellX = Math.floor((corners.topLeft.x)/level.unitCell.x)
-		cellY2 = Math.floor((corners.topRight.y - speed)/level.unitCell.y)
-		cellX2 = Math.floor((corners.topRight.x)/level.unitCell.x)
+
+		x = center.x + 1 * Math.cos(player.angle + (.015 * 44))
+		y = center.y + 1 * Math.sin(player.angle + (.015 * 44))
+		vx = center.x - x
+		vy = center.y - y
+
+		cellY = Math.floor((corners.topLeft.y + (vy * speed))/level.unitCell.y)
+		cellX = Math.floor((corners.topLeft.x + (vx * speed))/level.unitCell.x)
+		cellY2 = Math.floor((corners.topRight.y + (vy * speed))/level.unitCell.y)
+		cellX2 = Math.floor((corners.topRight.x + (vx * speed))/level.unitCell.x)
 		cell = level.worldArray[cellY][cellX]
 		cell2 = level.worldArray[cellY2][cellX2]
 		if(!cell && !cell2) {
-			player.y -= speed
+			player.x += vx * speed
+			player.y += vy * speed
 		}
 		else{
-			cell ? player.y = cell.bottomRight.y + 1 : player.y = cell2.bottomRight.y + 1
+			// cell ? player.y = cell.bottomRight.y + 1 : player.y = cell2.bottomRight.y + 1
 		}
 
 		break
@@ -282,8 +294,8 @@ function makeMove(input){
 	}
 	input.preventDefault()
 	ctx.clearRect(-15, -15, canvas.width, canvas.height)
-	// drawTopDown()
 	castRays()
+	// drawTopDown()
 	drawFirstPerson()
 }
 
