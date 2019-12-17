@@ -3,7 +3,7 @@ title.innerText = 'RayCasting101'
 document.body.appendChild(title)
 
 const start = document.createElement('button')
-start.innerText = 'Start!'
+start.innerText = 'Immerse Yourself!'
 start.onclick = gameStart
 document.body.appendChild(start)
 
@@ -11,36 +11,11 @@ const canvas = document.createElement('canvas')
 const ctx = canvas.getContext('2d')
 let xAxis = []
 //character constructor 
-function character (x, y, w, h, color){
-	this.x = x
-	this.y = y
-	this.w = w
-	this.h = h
+function character (x, y, r, color){
+	this.r = r
+	this.center = {x: x, y: y}
 	this.color = color
 	this.angle = 0
-	this.generateCenter = function () {
-		return	{x: (player.x + player.w / 2), y: (player.y + player.h / 2)}
-	}	
-
-	this.generateCorners = function() {
-		return {
-			topLeft: { 
-				x: this.x, 
-				y: this.y
-			}, 
-			topRight: {
-				x: this.x+this.w,
-				y: this.y
-			}, 
-			bottomLeft: {
-				x: this.x,
-				y: (this.y+this.h)
-			}, 
-			bottomRight: {
-				x: (this.x+this.w),
-				y: (this.y+this.h)
-			}}
-	}
 }
 
 const level = {
@@ -49,7 +24,7 @@ const level = {
 
 }
 
-let player = new character(level.unitCell.x * 2 , level.unitCell.y * 2, 25, 25, 'purple')
+let player = new character(level.unitCell.x * 3 , level.unitCell.y * 3, 10, 'purple')
 //draw rays func
 let drawPlayer = false
 let drawRays = false
@@ -57,10 +32,15 @@ function castRays (){
 
 	ctx.save()
 	if(drawPlayer){
+		ctx.save()
 		ctx.fillStyle = player.color
-		ctx.fillRect (player.x, player.y, player. w, player.h)
+		ctx.translate(player.center.x, player.center.y)
+		ctx.beginPath()
+		ctx.arc(0, 0, player.r, 0, 360)
+		ctx.fill()
+		ctx.restore()
 	}
-	let center = player.generateCenter()
+	let center = player.center
 	let temp = player.angle
 	let slope = {rise: 0, run: 1}
 	xAxis = []
@@ -120,6 +100,7 @@ function gameStart() {
 		let row = []
 		for (let x = 0; x < 20; x++) {
 			let cell = { //reference to the cell being rendered
+				type: 1,//wall
 				topLeft: { 
 					x: x*level.unitCell.x, 
 					y: y*level.unitCell.y
@@ -152,13 +133,14 @@ function gameStart() {
 				row.push(cell)
 			}
 			else{
-				row.push(null)
+				cell.type = 0
+				row.push(cell)
 			}
 		}
 		level.worldArray.push(row)
 	}
-	// drawTopDown()
-	castRays()
+	drawTopDown()
+	// castRays()
 }
 function drawLevel() {	
 	ctx.strokeStyle = 'cyan'
@@ -166,19 +148,19 @@ function drawLevel() {
 	//draw
 	level.worldArray.forEach((row) => {
 		row.forEach((cell) => {
-			if (cell) {
-				ctx.fillRect(cell.topLeft.x, cell.topLeft.y, level.unitCell.x, level.unitCell.y)
-				ctx.strokeRect(cell.topLeft.x, cell.topLeft.y, level.unitCell.x, level.unitCell.y)
+			if (cell.type === 1) {
+				ctx.fillRect(cell.topLeft.x, cell.topLeft.y, level.unitCell.x , level.unitCell.y )
+				ctx.strokeRect(cell.topLeft.x , cell.topLeft.y , level.unitCell.x , level.unitCell.y )
 			}
 		})
 	})
 }
 
 function drawTopDown() {
-	drawLevel()
 	drawPlayer = true
 	drawRays = true
 	castRays()
+	drawLevel()
 }
 //arrow keys make movement
 document.addEventListener('keydown', makeMove)
@@ -198,18 +180,19 @@ document.addEventListener('keydown', makeMove)
 function makeMove(input){
 	let cellY
 	let cellX
-	let cellY2
-	let cellX2
 	let cell
-	let cell2
 	const speed = 15
 	const rotationSpeed = .1
-	const corners = player.generateCorners()
 	let x
 	let y
 	let vx
 	let vy
-	let center = player.generateCenter()
+	let center = player.center
+	let tLCheck 
+	let tRCheck 
+	let bLCheck 
+	let bRCheck 
+	let canMove = true
 	switch(input.keyCode){
 	//left turn e
 	case 69: player.angle = +mod(player.angle + rotationSpeed, Math.PI * 2).toFixed(7)
@@ -218,21 +201,21 @@ function makeMove(input){
 	case 81: player.angle = +mod(player.angle - rotationSpeed, Math.PI * 2).toFixed(7)
 		break
 	//left and A
-	case 37: 
-	case 65: 
-		cellY = Math.floor(corners.topLeft.y/level.unitCell.y)
-		cellX = Math.floor((corners.topLeft.x - speed)/level.unitCell.x)
-		cellY2 = Math.floor(corners.bottomLeft.y/level.unitCell.y)
-		cellX2 = Math.floor((corners.bottomLeft.x - speed)/level.unitCell.x)
-		cell = level.worldArray[cellY][cellX]
-		cell2 = level.worldArray[cellY2][cellX2]
-		if(!cell && !cell2) {
-			player.x -= speed
-		}
-		else{
-			cell ? player.x = cell.topRight.x + 1 : player.x = cell2.topRight.x + 1
-		}
-		break
+	// case 37: 
+	// case 65: 
+	// 	cellY = Math.floor(corners.topLeft.y/level.unitCell.y)
+	// 	cellX = Math.floor((corners.topLeft.x - speed)/level.unitCell.x)
+	// 	cellY2 = Math.floor(corners.bottomLeft.y/level.unitCell.y)
+	// 	cellX2 = Math.floor((corners.bottomLeft.x - speed)/level.unitCell.x)
+	// 	cell = level.worldArray[cellY][cellX]
+	// 	cell2 = level.worldArray[cellY2][cellX2]
+	// 	if(!cell && !cell2) {
+	// 		player.x -= speed
+	// 	}
+	// 	else{
+	// 		cell ? player.x = cell.topRight.x + 1 : player.x = cell2.topRight.x + 1
+	// 	}
+	// 	break
 	//up and W
 	case 38:
 	case 87: 
@@ -242,61 +225,96 @@ function makeMove(input){
 		vx = center.x - x
 		vy = center.y - y
 
-		cellY = Math.floor((corners.topLeft.y + (vy * speed))/level.unitCell.y)
-		cellX = Math.floor((corners.topLeft.x + (vx * speed))/level.unitCell.x)
-		cellY2 = Math.floor((corners.topRight.y + (vy * speed))/level.unitCell.y)
-		cellX2 = Math.floor((corners.topRight.x + (vx * speed))/level.unitCell.x)
+		cellY = Math.floor((center.y + (vy * (speed + player.r)))/level.unitCell.y)
+		cellX = Math.floor((center.x + (vx * (speed + player.r)))/level.unitCell.x)
 		cell = level.worldArray[cellY][cellX]
-		cell2 = level.worldArray[cellY2][cellX2]
-		if(!cell && !cell2) {
-			player.x += vx * speed
-			player.y += vy * speed
+		if(cell.type === 0) {
+			tLCheck = (Math.pow(player.r, 2) >= Math.pow(cell.topLeft.x - (player.center.x + (vx * speed)), 2) + Math.pow(cell.topLeft.y - (player.center.y + (vy * speed)), 2) )
+			tRCheck = (Math.pow(player.r, 2) >= Math.pow(cell.topRight.x - (player.center.x + (vx * speed)), 2) + Math.pow(cell.topRight.y - (player.center.y + (vy * speed)), 2) )
+			bLCheck = (Math.pow(player.r, 2) >= Math.pow(cell.bottomLeft.x - (player.center.x + (vx * speed)), 2) + Math.pow(cell.bottomLeft.y - (player.center.y + (vy * speed)), 2) )
+			bRCheck = (Math.pow(player.r, 2) >= Math.pow(cell.bottomRight.x - (player.center.x + (vx * speed)), 2) + Math.pow(cell.bottomRight.y - (player.center.y + (vy * speed)), 2) )			
+			if(tLCheck){
+				if(level.worldArray[cellY -1][cellX].type === 1
+				|| level.worldArray[cellY][cellX - 1].type === 1
+				|| level.worldArray[cellY - 1][cellX - 1].type === 1
+				){
+					canMove = false
+				}
+			}
+			if(tRCheck){
+				if(level.worldArray[cellY - 1][cellX].type === 1
+				|| level.worldArray[cellY][cellX + 1].type === 1
+				|| level.worldArray[cellY - 1][cellX + 1].type === 1
+				){
+					canMove = false
+				}
+			}
+			if(bLCheck){
+				if(level.worldArray[cellY + 1][cellX].type === 1
+				|| level.worldArray[cellY][cellX - 1].type === 1
+				|| level.worldArray[cellY + 1][cellX - 1].type === 1
+				){
+					canMove = false
+				}
+			}
+			if(bRCheck){
+				if(level.worldArray[cellY + 1][cellX].type === 1
+				|| level.worldArray[cellY][cellX + 1].type === 1
+				|| level.worldArray[cellY + 1][cellX + 1].type === 1
+				){
+					canMove = false
+				}			
+			}
 		}
+		
 		else{
-			// cell ? player.y = cell.bottomRight.y + 1 : player.y = cell2.bottomRight.y + 1
+			canMove = false
 		}
-
+		if(canMove === true){
+			player.center.x += vx * speed
+			player.center.y += vy * speed
+		}
 		break
 	//right and D
-	case 39: 
-	case 68: 
-		cellY = Math.floor(corners.topRight.y/level.unitCell.y)
-		cellX = Math.floor((corners.topRight.x + speed)/level.unitCell.x)
-		cellY2 = Math.floor(corners.bottomRight.y/level.unitCell.y)
-		cellX2 = Math.floor((corners.bottomRight.x + speed)/level.unitCell.x)
-		cell = level.worldArray[cellY][cellX]
-		cell2 = level.worldArray[cellY2][cellX2]
-		if(!cell && !cell2) {
-			player.x += speed
-		}
-		else{
-			cell ? player.x = cell.topLeft.x - (player.w + 1) : player.x = cell2.topLeft.x - (player.w + 1)
-		}
-		break
+	// case 39: 
+	// case 68: 
+	// 	cellY = Math.floor(corners.topRight.y/level.unitCell.y)
+	// 	cellX = Math.floor((corners.topRight.x + speed)/level.unitCell.x)
+	// 	cellY2 = Math.floor(corners.bottomRight.y/level.unitCell.y)
+	// 	cellX2 = Math.floor((corners.bottomRight.x + speed)/level.unitCell.x)
+	// 	cell = level.worldArray[cellY][cellX]
+	// 	cell2 = level.worldArray[cellY2][cellX2]
+	// 	if(!cell && !cell2) {
+	// 		player.x += speed
+	// 	}
+	// 	else{
+	// 		cell ? player.x = cell.topLeft.x - (player.w + 1) : player.x = cell2.topLeft.x - (player.w + 1)
+	// 	}
+	// 	break
 
-	//down and S
-	case 40: 
-	case 83: 
-		cellY = Math.floor((corners.bottomLeft.y + speed)/level.unitCell.y) 
-		cellX = Math.floor((corners.bottomLeft.x)/level.unitCell.x)
-		cellY2 = Math.floor((corners.bottomRight.y + speed)/level.unitCell.y)
-		cellX2 = Math.floor((corners.bottomRight.x)/level.unitCell.x)
-		cell = level.worldArray[cellY][cellX]
-		cell2 = level.worldArray[cellY2][cellX2]
-		if(!cell && !cell2) {
-			player.y += speed
-		}
-		else{
-			cell ? player.y = cell.topRight.y - (player.h + 1): player.y = cell2.topRight.y - (player.h + 1)
-		}
-		break
+	// //down and S
+	// case 40: 
+	// case 83: 
+	// 	cellY = Math.floor((corners.bottomLeft.y + speed)/level.unitCell.y) 
+	// 	cellX = Math.floor((corners.bottomLeft.x)/level.unitCell.x)
+	// 	cellY2 = Math.floor((corners.bottomRight.y + speed)/level.unitCell.y)
+	// 	cellX2 = Math.floor((corners.bottomRight.x)/level.unitCell.x)
+	// 	cell = level.worldArray[cellY][cellX]
+	// 	cell2 = level.worldArray[cellY2][cellX2]
+	// 	if(!cell && !cell2) {
+	// 		player.y += speed
+	// 	}
+	// 	else{
+	// 		cell ? player.y = cell.topRight.y - (player.h + 1): player.y = cell2.topRight.y - (player.h + 1)
+	// 	}
+	// 	break
 
 	}
 	input.preventDefault()
 	ctx.clearRect(-15, -15, canvas.width, canvas.height)
 	castRays()
-	// drawTopDown()
-	drawFirstPerson()
+	// drawFirstPerson()
+	drawTopDown()
 }
 
 function Ray(temp, slope) {
@@ -304,7 +322,7 @@ function Ray(temp, slope) {
 	let cellY = Math.floor((point.y)/level.unitCell.y) 
 	let cellX = Math.floor((point.x)/level.unitCell.x)	
 	let cell = level.worldArray[cellY][cellX]
-	if(!cell){
+	if(cell.type === 0){
 		return Ray(point, slope) 
 	}
 	else return point
