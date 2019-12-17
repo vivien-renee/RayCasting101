@@ -40,11 +40,12 @@ function castRays (){
 		ctx.fill()
 		ctx.restore()
 	}
+	let FOV = 91
 	let center = player.center
-	let temp = player.angle
+	let temp = +mod(player.angle - (FOV / 2) * (Math.PI/180), Math.PI * 2)
 	let slope = {rise: 0, run: 1}
 	xAxis = []
-	for (let index = 0; index <= 90; index++) {	
+	for (let index = 0; index <= FOV; index++) {	
 		let x = center.x + 1 * Math.cos(temp)
 		let y = center.y + 1 * Math.sin(temp)
 		slope.run = center.x - x
@@ -175,24 +176,74 @@ document.addEventListener('keydown', makeMove)
 //d	68
 //q 81
 //e 69
-
-
-function makeMove(input){
+function collision(x, y, vx, vy, center) {
 	let cellY
 	let cellX
 	let cell
-	const speed = 15
-	const rotationSpeed = .1
+	let tLCheck 
+	let tRCheck 
+	let bLCheck 
+	let bRCheck 
+
+
+	cellY = Math.floor((center.y + (vy * (speed + player.r)))/level.unitCell.y)
+	cellX = Math.floor((center.x + (vx * (speed + player.r)))/level.unitCell.x)
+	cell = level.worldArray[cellY][cellX]
+	if(cell.type === 0) {
+		tLCheck = (Math.pow(player.r, 2) >= Math.pow(cell.topLeft.x - (player.center.x + (vx * speed)), 2) + Math.pow(cell.topLeft.y - (player.center.y + (vy * speed)), 2) )
+		tRCheck = (Math.pow(player.r, 2) >= Math.pow(cell.topRight.x - (player.center.x + (vx * speed)), 2) + Math.pow(cell.topRight.y - (player.center.y + (vy * speed)), 2) )
+		bLCheck = (Math.pow(player.r, 2) >= Math.pow(cell.bottomLeft.x - (player.center.x + (vx * speed)), 2) + Math.pow(cell.bottomLeft.y - (player.center.y + (vy * speed)), 2) )
+		bRCheck = (Math.pow(player.r, 2) >= Math.pow(cell.bottomRight.x - (player.center.x + (vx * speed)), 2) + Math.pow(cell.bottomRight.y - (player.center.y + (vy * speed)), 2) )			
+		if(tLCheck){
+			if(level.worldArray[cellY -1][cellX].type === 1
+			|| level.worldArray[cellY][cellX - 1].type === 1
+			|| level.worldArray[cellY - 1][cellX - 1].type === 1
+			){
+				canMove = false
+			}
+		}
+		if(tRCheck){
+			if(level.worldArray[cellY - 1][cellX].type === 1
+			|| level.worldArray[cellY][cellX + 1].type === 1
+			|| level.worldArray[cellY - 1][cellX + 1].type === 1
+			){
+				canMove = false
+			}
+		}
+		if(bLCheck){
+			if(level.worldArray[cellY + 1][cellX].type === 1
+			|| level.worldArray[cellY][cellX - 1].type === 1
+			|| level.worldArray[cellY + 1][cellX - 1].type === 1
+			){
+				canMove = false
+			}
+		}
+		if(bRCheck){
+			if(level.worldArray[cellY + 1][cellX].type === 1
+			|| level.worldArray[cellY][cellX + 1].type === 1
+			|| level.worldArray[cellY + 1][cellX + 1].type === 1
+			){
+				canMove = false
+			}			
+		}
+	}
+	
+	else{
+		canMove = false
+	}
+
+}
+
+const speed = 15
+const rotationSpeed = .1
+let canMove = true
+function makeMove(input){
 	let x
 	let y
 	let vx
 	let vy
 	let center = player.center
-	let tLCheck 
-	let tRCheck 
-	let bLCheck 
-	let bRCheck 
-	let canMove = true
+	canMove = true
 	switch(input.keyCode){
 	//left turn e
 	case 69: player.angle = +mod(player.angle + rotationSpeed, Math.PI * 2).toFixed(7)
@@ -201,120 +252,66 @@ function makeMove(input){
 	case 81: player.angle = +mod(player.angle - rotationSpeed, Math.PI * 2).toFixed(7)
 		break
 	//left and A
-	// case 37: 
-	// case 65: 
-	// 	cellY = Math.floor(corners.topLeft.y/level.unitCell.y)
-	// 	cellX = Math.floor((corners.topLeft.x - speed)/level.unitCell.x)
-	// 	cellY2 = Math.floor(corners.bottomLeft.y/level.unitCell.y)
-	// 	cellX2 = Math.floor((corners.bottomLeft.x - speed)/level.unitCell.x)
-	// 	cell = level.worldArray[cellY][cellX]
-	// 	cell2 = level.worldArray[cellY2][cellX2]
-	// 	if(!cell && !cell2) {
-	// 		player.x -= speed
-	// 	}
-	// 	else{
-	// 		cell ? player.x = cell.topRight.x + 1 : player.x = cell2.topRight.x + 1
-	// 	}
-	// 	break
+	case 37: 
+	case 65: 
+		x = center.x + 1 * Math.cos(+mod(player.angle - 90 * (Math.PI/180), Math.PI * 2))
+		y = center.y + 1 * Math.sin(+mod(player.angle - 90 * (Math.PI/180), Math.PI * 2))
+		vx = center.x - x
+		vy = center.y - y
+		collision(x, y, vx, vy, center)
+		if(canMove === true){
+			player.center.x += vx * speed
+			player.center.y += vy * speed
+		}
+		break
 	//up and W
 	case 38:
 	case 87: 
 
-		x = center.x + 1 * Math.cos(player.angle + (.015 * 44))
-		y = center.y + 1 * Math.sin(player.angle + (.015 * 44))
+		x = center.x + 1 * Math.cos(player.angle)
+		y = center.y + 1 * Math.sin(player.angle)
 		vx = center.x - x
 		vy = center.y - y
-
-		cellY = Math.floor((center.y + (vy * (speed + player.r)))/level.unitCell.y)
-		cellX = Math.floor((center.x + (vx * (speed + player.r)))/level.unitCell.x)
-		cell = level.worldArray[cellY][cellX]
-		if(cell.type === 0) {
-			tLCheck = (Math.pow(player.r, 2) >= Math.pow(cell.topLeft.x - (player.center.x + (vx * speed)), 2) + Math.pow(cell.topLeft.y - (player.center.y + (vy * speed)), 2) )
-			tRCheck = (Math.pow(player.r, 2) >= Math.pow(cell.topRight.x - (player.center.x + (vx * speed)), 2) + Math.pow(cell.topRight.y - (player.center.y + (vy * speed)), 2) )
-			bLCheck = (Math.pow(player.r, 2) >= Math.pow(cell.bottomLeft.x - (player.center.x + (vx * speed)), 2) + Math.pow(cell.bottomLeft.y - (player.center.y + (vy * speed)), 2) )
-			bRCheck = (Math.pow(player.r, 2) >= Math.pow(cell.bottomRight.x - (player.center.x + (vx * speed)), 2) + Math.pow(cell.bottomRight.y - (player.center.y + (vy * speed)), 2) )			
-			if(tLCheck){
-				if(level.worldArray[cellY -1][cellX].type === 1
-				|| level.worldArray[cellY][cellX - 1].type === 1
-				|| level.worldArray[cellY - 1][cellX - 1].type === 1
-				){
-					canMove = false
-				}
-			}
-			if(tRCheck){
-				if(level.worldArray[cellY - 1][cellX].type === 1
-				|| level.worldArray[cellY][cellX + 1].type === 1
-				|| level.worldArray[cellY - 1][cellX + 1].type === 1
-				){
-					canMove = false
-				}
-			}
-			if(bLCheck){
-				if(level.worldArray[cellY + 1][cellX].type === 1
-				|| level.worldArray[cellY][cellX - 1].type === 1
-				|| level.worldArray[cellY + 1][cellX - 1].type === 1
-				){
-					canMove = false
-				}
-			}
-			if(bRCheck){
-				if(level.worldArray[cellY + 1][cellX].type === 1
-				|| level.worldArray[cellY][cellX + 1].type === 1
-				|| level.worldArray[cellY + 1][cellX + 1].type === 1
-				){
-					canMove = false
-				}			
-			}
-		}
-		
-		else{
-			canMove = false
-		}
+		collision(x, y, vx, vy, center)
 		if(canMove === true){
 			player.center.x += vx * speed
 			player.center.y += vy * speed
 		}
 		break
 	//right and D
-	// case 39: 
-	// case 68: 
-	// 	cellY = Math.floor(corners.topRight.y/level.unitCell.y)
-	// 	cellX = Math.floor((corners.topRight.x + speed)/level.unitCell.x)
-	// 	cellY2 = Math.floor(corners.bottomRight.y/level.unitCell.y)
-	// 	cellX2 = Math.floor((corners.bottomRight.x + speed)/level.unitCell.x)
-	// 	cell = level.worldArray[cellY][cellX]
-	// 	cell2 = level.worldArray[cellY2][cellX2]
-	// 	if(!cell && !cell2) {
-	// 		player.x += speed
-	// 	}
-	// 	else{
-	// 		cell ? player.x = cell.topLeft.x - (player.w + 1) : player.x = cell2.topLeft.x - (player.w + 1)
-	// 	}
-	// 	break
+	case 39: 
+	case 68: 
+		x = center.x + 1 * Math.cos(+mod(player.angle + 90 * (Math.PI/180), Math.PI * 2))
+		y = center.y + 1 * Math.sin(+mod(player.angle + 90 * (Math.PI/180), Math.PI * 2))
+		vx = center.x - x
+		vy = center.y - y
+		collision(x, y, vx, vy, center)
+		if(canMove === true){
+			player.center.x += vx * speed
+			player.center.y += vy * speed
+		}
+		break
 
 	// //down and S
-	// case 40: 
-	// case 83: 
-	// 	cellY = Math.floor((corners.bottomLeft.y + speed)/level.unitCell.y) 
-	// 	cellX = Math.floor((corners.bottomLeft.x)/level.unitCell.x)
-	// 	cellY2 = Math.floor((corners.bottomRight.y + speed)/level.unitCell.y)
-	// 	cellX2 = Math.floor((corners.bottomRight.x)/level.unitCell.x)
-	// 	cell = level.worldArray[cellY][cellX]
-	// 	cell2 = level.worldArray[cellY2][cellX2]
-	// 	if(!cell && !cell2) {
-	// 		player.y += speed
-	// 	}
-	// 	else{
-	// 		cell ? player.y = cell.topRight.y - (player.h + 1): player.y = cell2.topRight.y - (player.h + 1)
-	// 	}
-	// 	break
+	case 40: 
+	case 83: 
+		x = center.x + 1 * Math.cos(+mod(player.angle + 180 * (Math.PI/180), Math.PI * 2))
+		y = center.y + 1 * Math.sin(+mod(player.angle + 180 * (Math.PI/180), Math.PI * 2))
+		vx = center.x - x
+		vy = center.y - y
+		collision(x, y, vx, vy, center)
+		if(canMove === true){
+			player.center.x += vx * speed
+			player.center.y += vy * speed
+		}
+		break
 
 	}
 	input.preventDefault()
 	ctx.clearRect(-15, -15, canvas.width, canvas.height)
 	castRays()
-	// drawFirstPerson()
-	drawTopDown()
+	drawFirstPerson()
+	// drawTopDown()
 }
 
 function Ray(temp, slope) {
