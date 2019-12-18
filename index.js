@@ -10,12 +10,14 @@ document.body.appendChild(start)
 const canvas = document.createElement('canvas')
 const ctx = canvas.getContext('2d')
 let xAxis = []
+let winCondition = false
+let stage = 1
 //character constructor 
 function character (x, y, r, color){
 	this.r = r
 	this.center = {x: x, y: y}
 	this.color = color
-	this.angle = 0
+	this.angle = (Math.PI / 180) * 270
 }
 
 const level = {
@@ -100,8 +102,11 @@ function gameStart() {
 	canvas.height = window.innerHeight - 20
 	ctx.translate(15, 15)
 	ctx.save()
+	player.center = {x: level.unitCell.x * 2, y: level.unitCell.y * 2}
+	player.angle = (Math.PI / 180) * 270
+	winCondition = false
 	// Array to create the World!!
-	let array = [
+	let array1 = [
 		[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
 		[2,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
 		[2,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
@@ -154,6 +159,7 @@ function gameStart() {
 		[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
 		[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
 	]
+	let array = array1
 	for(let y = 0; y < array.length; y++){
 		let row = []
 		for (let x = 0; x < array[0].length; x++) {
@@ -184,7 +190,6 @@ function gameStart() {
 	// castRays()
 }
 function assignColor(cell,drawHeight = 1, maxHeight = 1) {
-	console.log(cell)
 	if (cell.type === 1) {
 		return `rgb(0,0,${(255 * drawHeight) / maxHeight})` //blue
 	}
@@ -295,13 +300,16 @@ function collision(x, y, vx, vy, center) {
 			}			
 		}
 	}
-	
+	else if (cell.type === 7) {
+		winCondition = true
+		//increment stage
+		gameStart()
+	}
 	else{
 		canMove = false
 	}
 
 }
-
 const speed = 7
 let rotationSpeed = .025
 let canMove = true
