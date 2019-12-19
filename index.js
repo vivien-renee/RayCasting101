@@ -12,7 +12,7 @@ const ctx = canvas.getContext('2d')
 let xAxis = []
 let winCondition = false
 let stage = 0
-let counter = 1
+
 //character constructor 
 function character (x, y, r, color){
 	this.r = r
@@ -216,7 +216,6 @@ function gameStart() {
 	}
 	player.center = {x: level.unitCell.x * 2, y: level.unitCell.y * 2}
 	player.angle = (Math.PI / 180) * 270
-	counter = 1
 	winCondition = false
 	let levelChoice = stages[stage]
 	// Array to create the World!!
@@ -248,6 +247,7 @@ function gameStart() {
 		}
 		level.worldArray.push(row)
 	}
+	drawTopDown()
 }
 function assignColor(cell,drawHeight = 1, maxHeight = 1) {
 	if (cell.type === 1) {
@@ -361,10 +361,10 @@ function collision(x, y, vx, vy, center) {
 		}
 	}
 	else if (cell.type === 7) {
-		winCondition = true
-		
-		stage ++
-		gameStart()
+		if (!winCondition) {
+			winCondition = true
+			stage ++
+		}
 	}
 	else{
 		canMove = false
@@ -380,6 +380,9 @@ function resetValue(input) {
 	case 81: 
 		rotationSpeed = .025
 		break
+	}
+	if (winCondition && stage < stages.length) {
+		gameStart()
 	}
 }
 function makeMove(input){
@@ -470,10 +473,6 @@ function makeMove(input){
 	}
 	else{		
 		ctx.fillText('O', canvas.width/2,canvas.height/2)
-	}
-	if(counter > 0){
-		drawTopDown()
-		counter --
 	}
 }
 
